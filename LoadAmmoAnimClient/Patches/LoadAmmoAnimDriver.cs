@@ -528,6 +528,7 @@ namespace Manimal.LoadAmmoAnim.Patches
             var session = LoadAmmoAnimState.Get(player);
             bool claInstalled = ContinuousLoadAmmoCompat.IsInstalled;
             float idleSince = -1f;
+            int handsMismatchFrames = 0;
 
             // snapshot the mag this session was started for. once the next mag's
             // LoadMagazineProcess.Start fires, CurrentMag gets overwritten, so we cant
@@ -540,6 +541,24 @@ namespace Manimal.LoadAmmoAnim.Patches
 
                 if (!session.IsOurAnimation || controller == null)
                     break;
+
+                var hands = player != null ? player.HandsController : null;
+                if (hands != null && hands != controller)
+                {
+                    if (++handsMismatchFrames >= 5 && session.IsLoading && player.IsYourPlayer)
+                    {
+                        try { player.InventoryController?.StopProcesses(); }
+                        catch (Exception ex)
+                        {
+                            Plugin.LogSource?.LogError(
+                                $"[LoadAmmoAnim] StopProcesses on interrupt: {ex.GetType().Name}: {ex.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    handsMismatchFrames = 0;
+                }
 
                 if (!session.IsLoading)
                 {

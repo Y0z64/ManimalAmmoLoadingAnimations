@@ -48,6 +48,9 @@ namespace Manimal.LoadAmmoAnim
             new HandsControllerAnimationTypeBundlePatch().Enable();
             new UsableBundleInterfaceDispatchPatch().Enable();
 
+            new InventoryScreenCloseFlagPatch().Enable();
+            new SkipStopProcessesOnClosePatch().Enable();
+
             // defensive PWA guards — there's still a brief window during controller
             // teardown/respawn where WeaponRootAnim can be null/destroyed before the
             // new firearm controllers Setup rebinds. these silence the NRE storm
